@@ -52,9 +52,39 @@ const camp=new THREE.Group();camp.position.set(-14,height(-14,7.5),7.5);scene.ad
 function benchAt(x,z,rot=0){let g=new THREE.Group();g.position.set(x,height(x,z),z);g.rotation.y=rot;scene.add(g);for(let t of [-.7,.7]){box(.14,.7,.48,M.wood,g,t,.35,0);box(.13,1.0,.13,M.wood,g,t,.65,-.23);}box(1.9,.13,.65,'#a98355',g,0,.72,0);box(1.9,.45,.12,'#a98355',g,0,1.12,-.3);return g;}register('bench','Lookout bench','bench',-17,-3,benchAt(-17,-3,.8),{text:'The cove keeps moving, even when you stop. Sit for a moment.'});
 const tower=new THREE.Group();tower.position.set(2,height(2,-10),-10);scene.add(tower);cylinder(1.4,1.8,.4,'#a4a082',tower,0,.2,0,8);cylinder(.7,.85,2.4,'#e4dbb2',tower,0,1.5,0,8);for(let x of [-.5,.5])for(let z of [-.5,.5])cylinder(.06,.06,1.3,M.wood,tower,x,3.1,z,5);cylinder(.85,.85,.15,M.wood,tower,0,2.48,0);cylinder(0,1.05,.85,M.roof,tower,0,4.14,0,6);const lamp=ball(.42,new THREE.MeshBasicMaterial({color:'#748c82'}),tower,0,3.15,0,1);const beacon=new THREE.PointLight('#ffcf76',0,15);beacon.position.set(0,3.3,0);tower.add(beacon);register('lantern','Hilltop lantern','lantern',2,-10,tower);colliders.push({x:2,z:-10,r:1.0});
 const flag=new THREE.Group();flag.position.set(4.7,height(4.7,-10),-10);scene.add(flag);cylinder(.035,.06,3,'#806a4f',flag,0,1.5,0);const pennant=box(.9,.45,.03,'#cf7359',flag,.45,2.65,0);
-function person(name,x,z,shirt,hat=false){const g=new THREE.Group();g.position.set(x,height(x,z),z);scene.add(g);const body=box(.51,.64,.34,shirt,g,0,.83,0),head=box(.39,.42,.36,'#dbae78',g,0,1.35,0);box(.43,.17,.39,'#655247',g,0,1.6,-.02);box(.065,.065,.028,'#344b47',g,-.105,1.39,.195);box(.065,.065,.028,'#344b47',g,.105,1.39,.195);const left=box(.19,.45,.21,'#40565a',g,-.15,.24,0),right=box(.19,.45,.21,'#40565a',g,.15,.24,0);const la=box(.16,.49,.19,shirt,g,-.34,.87,0),ra=box(.16,.49,.19,shirt,g,.34,.87,0);box(.42,.42,.2,'#ba914f',g,0,.9,-.25);if(hat){cylinder(.35,.35,.08,'#eedfba',g,0,1.68,0);cylinder(.23,.25,.22,'#eedfba',g,0,1.78,0);}return {name,group:g,body,head,left,right,la,ra,phase:random()*6};}
+// Original low-poly hikers with hip, knee, ankle, shoulder and elbow pivots.
+function person(name,x,z,shirt,hat=false){
+ const g=new THREE.Group();g.position.set(x,height(x,z),z);scene.add(g);
+ const visual=new THREE.Group();g.add(visual);
+ const body=cylinder(.25,.29,.61,shirt,visual,0,.99,0,8);body.scale.z=.76;
+ const head=new THREE.Group();head.position.y=1.5;visual.add(head);
+ const face=ball(.235,'#dbae87',head,0,0,0,1);face.scale.set(.9,1,.88);
+ const hair=ball(.241,'#594a40',head,0,.085,-.055,1);hair.scale.set(.94,.62,.86);
+ box(.07,.065,.035,'#293e3d',head,-.088,.025,.194);box(.07,.065,.035,'#293e3d',head,.088,.025,.194);
+ box(.09,.07,.075,'#cf9a72',head,0,-.025,.2);
+ if(hat){cylinder(.34,.34,.065,'#f1ddb2',head,0,.22,.015,10);cylinder(.23,.26,.19,'#e4cda1',head,0,.335,0,10);cylinder(.263,.263,.055,'#8a6950',head,0,.26,0,10);}
+ const pack=box(.43,.48,.21,'#ba915c',visual,0,1.0,-.235);
+ box(.36,.13,.24,'#d4ad70',visual,0,1.22,-.25);
+ for(const side of [-1,1])box(.055,.49,.035,'#e2bb83',visual,side*.18,1.02,.211);
+ const limbs=[];
+ for(const side of [-1,1]){
+  const hip=new THREE.Group();hip.position.set(side*.145,.66,0);visual.add(hip);
+  box(.21,.34,.23,'#385659',hip,0,-.17,0);
+  const knee=new THREE.Group();knee.position.y=-.34;hip.add(knee);
+  box(.185,.34,.20,'#385659',knee,0,-.17,0);
+  const ankle=new THREE.Group();ankle.position.y=-.34;knee.add(ankle);
+  box(.215,.14,.31,'#674e3e',ankle,0,.07,.045);
+  const shoulder=new THREE.Group();shoulder.position.set(side*.30,1.20,0);visual.add(shoulder);
+  cylinder(.105,.09,.30,shirt,shoulder,0,-.15,0,6);
+  const elbow=new THREE.Group();elbow.position.y=-.29;shoulder.add(elbow);
+  cylinder(.087,.075,.23,shirt,elbow,0,-.115,0,6);
+  ball(.085,'#dbae87',elbow,0,-.255,0,0);
+  limbs.push({hip,knee,ankle,shoulder,elbow});
+ }
+ return {name,group:g,visual,body,head,pack,left:limbs[0].hip,right:limbs[1].hip,la:limbs[0].shoulder,ra:limbs[1].shoulder,limbs,gait:0,weight:0,lastX:x,lastZ:z,phase:random()*6};
+}
 const player=person('You',-1,17,'#c75e48',true);const playerState={x:-1,z:17,y:height(-1,17),jump:0,vy:0,sitting:false};
-player.group.scale.setScalar(1.12);
+player.group.scale.setScalar(1.08);
 const mina=person('Mina',2.2,15,'#769bb0');npcs.push({...mina,id:'mina',route:[[2.2,15],[3.3,16.2],[.6,15.4]],index:0,wait:5,speed:.7});register('mina','Mina','neighbor',2.2,15,mina.group,{text:'You made it! The hilltop lantern has gone a little quiet. Three bits of skyglass rolled down the paths. Look for their blue glimmer near the flowers, fishing rocks, and west lookout. I’m in no rush.'});
 const kit=person('Kit',15.5,5,'#d39e55',true);kit.group.rotation.y=1.8;npcs.push({...kit,id:'kit',route:[[15.5,5],[16.5,3.5],[15,4]],index:0,wait:8,speed:.6});register('kit','Kit','neighbor',15.5,5,kit.group,{text:'I’m seeing how many different kinds of nothing happen by the water. So far, quite a few. There’s a skyglass piece by these rocks, if the gulls haven’t claimed it.'});
 const noa=person('Noa',-17,-3.5,'#d4cbbb');npcs.push({...noa,id:'noa',route:[[-17,-3.5],[-16,-5],[-18,-4.5]],index:0,wait:7,speed:.55});register('noa','Noa','neighbor',-17,-3.5,noa.group,{text:'I came up here to make a map. Then I sat down. A good map should probably include places to sit down.'});
@@ -89,11 +119,48 @@ function closeDialog(){$('#dialog').hidden=true;dialogObject=null;playerState.si
 function talk(o,text=o.text){closeDialog();dialogObject=o;$('#dialog').hidden=false;$('#speaker').textContent=o.name;$('#speech').textContent=text;$('#dialogAction').hidden=true;movementTarget=null;waypoints=[];}
 function interact(id){let o=id?objects.find(x=>x.id===id):nearest;if(!o)return {ok:false,error:'No nearby object'};if(Math.hypot(o.x-playerState.x,o.z-playerState.z)>2.6)return {ok:false,error:'Walk closer to interact',target:o.id};if(o.type==='skyglass'){if(collected.has(o.id))return {ok:false,error:'Already collected'};collected.add(o.id);o.group.visible=false;save();updateQuest();toast(collected.size===3?'All three skyglass pieces. The hilltop is waiting.':`A piece of skyglass. ${collected.size} of 3 found.`);for(let i=0;i<12;i++){let p=ball(.07,new THREE.MeshBasicMaterial({color:'#dcf6ca'}),scene,o.x,o.y+.7,o.z);particles.push({mesh:p,life:1.1,v:new THREE.Vector3((random()-.5)*2,1+random()*2,(random()-.5)*2)});}}else if(o.type==='lantern'){if(collected.size<3)talk(o,`A little light needs three pieces of skyglass. You've found ${collected.size}. Try the wildflower hollow, the fishing rocks, and the west lookout.`);else if(!lanternLit){lanternLit=true;save();updateQuest();toast('The lantern is awake. A little light for everyone.');talk(o,'From up here, all the little places you passed fit together. The lantern will keep this bit of the coast company.');}else talk(o,'Still glowing. There is no next errand. Just the island, and as much time as you like.');}else if(o.type==='campfire'){o.lit=!o.lit;flame.visible=flameInner.visible=o.lit;toast(o.lit?'The fire is warm again.':'Just the sound of the breeze now.');}else if(o.type==='bench'){talk(o);playerState.sitting=true;$('#dialogAction').hidden=false;$('#dialogAction').textContent='Stand up';}else if(o.id==='mina'&&lanternLit)talk(o,'I can see it from here! Thank you. Funny how something so small can make a whole place feel looked after.');else talk(o);log('interact',{id:o.id});return {ok:true,id:o.id,state:observe()};}
 function hop(){if(playerState.jump<.02){playerState.vy=5;playerState.sitting=false;log('hop');}}
-function goHome(){closeDialog();movementTarget=null;waypoints=[];Object.assign(playerState,{x:-1,z:17,jump:0,vy:0});player.group.position.set(-1,height(-1,17),17);cameraTarget.set(-1,3.8,11);yaw=.18;toast('Back at the landing.');log('return_to_landing');}
+function goHome(){closeDialog();movementTarget=null;waypoints=[];Object.assign(playerState,{x:-1,z:17,jump:0,vy:0});player.group.position.set(-1,height(-1,17),17);player.lastX=-1;player.lastZ=17;player.weight=0;locomotionSpeed=0;cameraTarget.set(-1,3.8,11);yaw=.18;toast('Back at the landing.');log('return_to_landing');}
 function walkTo(x,z){if(!Number.isFinite(x)||!Number.isFinite(z)||Math.abs(x)>30||Math.abs(z)>26||height(x,z)<.18)throw new Error('Choose a walkable island position');closeDialog();movementTarget={x,z};waypoints=[];return {ok:true,target:{x,z}};}
 function tour(){closeDialog();waypoints=mainTrail.slice(1).map(p=>({x:p[0],z:p[1]}));movementTarget=waypoints.shift();log('start_trail_walk');toast('Following the trail. Any movement key takes over.');}
 function isWalkable(x,z){if(height(x,z)<.16)return false;return !colliders.some(c=>Math.hypot(c.x-x,c.z-z)<c.r+.23);}
-function animatePerson(p,speed,t){p.left.rotation.x=Math.sin(t*8)*.55*speed;p.right.rotation.x=-p.left.rotation.x;p.la.rotation.x=-p.left.rotation.x*.7;p.ra.rotation.x=p.left.rotation.x*.7;p.body.position.y=.83+Math.abs(Math.sin(t*8))*.025*speed;}
+function animatePerson(p,speed,t,dt){
+ const distance=Math.hypot(p.group.position.x-p.lastX,p.group.position.z-p.lastZ);
+ p.lastX=p.group.position.x;p.lastZ=p.group.position.z;
+ // Advance only on actual travel: blocked movement cannot make feet run in place.
+ if(distance<.5)p.gait+=distance/(1.28*p.group.scale.x);
+ const walking=distance>.0001&&distance<.5;
+ p.weight=THREE.MathUtils.lerp(p.weight,walking?1:0,1-Math.exp(-dt*14));
+ if(p.weight<.001)p.weight=0;
+ const phase=p.gait*Math.PI*2, bob=Math.abs(Math.sin(phase))*.025*p.weight;
+ p.visual.position.y=bob;
+ p.body.rotation.z=Math.sin(phase)*.035*p.weight;
+ p.head.rotation.z=-Math.sin(phase)*.025*p.weight;
+ p.pack.rotation.z=p.body.rotation.z*.6;
+ for(let i=0;i<2;i++){
+  const limb=p.limbs[i],cycle=(p.gait+i*.5)%1;
+  const stance=cycle<.5, f=stance?cycle*2:(cycle-.5)*2;
+  const footZ=(stance?.32-.64*f:-.32+.64*f)*p.weight;
+  const lift=(stance?0:Math.sin(f*Math.PI)*.15)*p.weight;
+  const side=(i?1:-1)*.145,scale=p.group.scale.x,heading=p.group.rotation.y;
+  const footX=p.group.position.x+(Math.cos(heading)*side+Math.sin(heading)*footZ)*scale;
+  const footWorldZ=p.group.position.z+(-Math.sin(heading)*side+Math.cos(heading)*footZ)*scale;
+  const groundRise=(height(footX,footWorldZ)-height(p.group.position.x,p.group.position.z))/scale;
+  const down=.66+bob-lift-groundRise, length=.34;
+  const d=clamp(Math.hypot(down,footZ),.02,length*2-.001);
+  const hipAngle=Math.atan2(-footZ,down)-Math.acos(clamp(d/(2*length),-1,1));
+  const kneeAngle=Math.PI-2*Math.asin(clamp(d/(2*length),-1,1));
+  limb.hip.rotation.x=hipAngle;limb.knee.rotation.x=kneeAngle;
+  limb.ankle.rotation.x=-hipAngle-kneeAngle;
+  limb.shoulder.rotation.x=-Math.sin(phase+i*Math.PI)*.42*p.weight;
+  limb.shoulder.rotation.z=(i?-.06:.06)*p.weight;
+  limb.elbow.rotation.x=-.12-.18*p.weight;
+ }
+ // Airborne pose reads as a hop instead of continuing a ground stride.
+ if(p===player&&playerState.jump>.025){
+  const tuck=Math.min(playerState.jump*.6,.45);
+  for(const limb of p.limbs){limb.hip.rotation.x=-tuck;limb.knee.rotation.x=tuck*1.8;limb.ankle.rotation.x=-tuck*.8;limb.shoulder.rotation.x=-.35;}
+ }
+}
 function nearestObject(){let best=null,dist=2.5;for(const o of objects){if(o.type==='skyglass'&&collected.has(o.id))continue;let d=Math.hypot(o.x-playerState.x,o.z-playerState.z);if(d<dist){dist=d;best=o;}}return best;}
 function observe(){return {world:'Aster Cove',version:'1.1.0',mode:'single-client',position:{x:+playerState.x.toFixed(2),y:+player.group.position.y.toFixed(2),z:+playerState.z.toFixed(2)},activity:playerState.sitting?'sitting':movementTarget?'walking':'wandering',quest:{skyglass:[...collected],lanternLit},nearby:objects.filter(o=>Math.hypot(o.x-playerState.x,o.z-playerState.z)<5&&!(o.type==='skyglass'&&collected.has(o.id))).map(o=>({id:o.id,name:o.name,type:o.type,distance:+Math.hypot(o.x-playerState.x,o.z-playerState.z).toFixed(2)})),neighbors:npcs.map(n=>({id:n.id,x:+n.group.position.x.toFixed(2),z:+n.group.position.z.toFixed(2),activity:n.wait>0?'taking a moment':'walking'})),render:{pixelHeight,actualHeight:renderHeight,pixelScale,outlines:!!postMat.uniforms.outlines.value,palette:!!postMat.uniforms.palette.value,shadows:renderer.shadowMap.enabled,follow},recentEvents:eventLog.slice(0,5)};}
 function act(action){if(!action||typeof action!=='object')throw new Error('Action must be an object');switch(action.type){case'observe':return observe();case'walk_to':return walkTo(action.x,action.z);case'interact':return interact(action.id);case'hop':hop();return {ok:true};case'follow_trail':tour();return {ok:true};case'return_to_landing':goHome();return {ok:true};case'set_render':{if(action.pixelHeight!==undefined&&!([0,200,320,540].includes(action.pixelHeight)))throw new Error('pixelHeight must be 0, 200, 320, or 540');if(action.pixelHeight!==undefined)setResolution(action.pixelHeight);for(const k of ['outlines','palette','shadows','follow'])if(action[k]!==undefined){if(typeof action[k]!=='boolean')throw new Error(`${k} must be boolean`);setToggle(k,action[k]);}return {ok:true,render:observe().render};}default:throw new Error('Unknown action. Use walk_to, interact, hop, follow_trail, return_to_landing, or set_render');}}
@@ -104,10 +171,26 @@ function setToggle(key,value){$('#'+key).checked=value;if(key==='shadows'){rende
 $('#labButton').onclick=()=>{$('#lab').hidden=!$('#lab').hidden;$('#labButton').setAttribute('aria-expanded',String(!$('#lab').hidden));};$('#closeLab').onclick=()=>{$('#lab').hidden=true;$('#labButton').setAttribute('aria-expanded','false');};$('#helpButton').onclick=()=>{$('#help').hidden=!$('#help').hidden;};$('#closeHelp').onclick=$('#startButton').onclick=()=>{$('#help').hidden=true;canvas.focus();};$('#closeDialog').onclick=$('#dialogAction').onclick=closeDialog;$('#homeButton').onclick=goHome;$('#touchHop').onclick=hop;$('#touchInteract').onclick=()=>interact();$('#tourButton').onclick=tour;$('#copyState').onclick=async()=>{try{await navigator.clipboard.writeText(JSON.stringify(observe(),null,2));toast('World state copied.');}catch{toast('Clipboard unavailable. State is visible below.');}};$('#resolutions').querySelectorAll('button').forEach(b=>b.onclick=()=>setResolution(+b.dataset.res));for(const key of ['outlines','palette','shadows','follow'])$('#'+key).onchange=e=>setToggle(key,e.target.checked);$('#sun').oninput=e=>{const n=+e.target.value/100;sun.position.set(-24+48*n,30-16*n,13);sun.color.setHSL(.12-.045*n,.6,.87-.05*n);sun.intensity=1.3-.25*n;$('#sunValue').textContent=n>.65?'Golden hour':n<.33?'Late afternoon':'Long shadows';};$('#compareButton').onpointerdown=e=>{e.currentTarget.setPointerCapture(e.pointerId);clean=true;};$('#compareButton').onpointerup=$('#compareButton').onpointercancel=()=>clean=false;
 addEventListener('keydown',e=>{if(['INPUT','TEXTAREA'].includes(e.target.tagName))return;if(['Space','ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.code))e.preventDefault();keys.add(e.code);if(!e.repeat){if(e.code==='KeyE')interact();if(e.code==='Space')hop();if(e.code==='Escape'){closeDialog();$('#lab').hidden=true;$('#help').hidden=true;}}});addEventListener('keyup',e=>keys.delete(e.code));addEventListener('blur',()=>keys.clear());document.querySelectorAll('[data-key]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);keys.add(b.dataset.key);};b.onpointerup=b.onpointercancel=()=>keys.delete(b.dataset.key);});
 let pointer=null;const raycaster=new THREE.Raycaster();canvas.onpointerdown=e=>{pointer={x:e.clientX,y:e.clientY,lastX:e.clientX,dragged:false};canvas.setPointerCapture(e.pointerId);};canvas.onpointermove=e=>{if(!pointer)return;if(Math.hypot(e.clientX-pointer.x,e.clientY-pointer.y)>5)pointer.dragged=true;if(pointer.dragged)yaw-=(e.clientX-pointer.lastX)*.008;pointer.lastX=e.clientX;};canvas.onpointerup=e=>{if(pointer&&!pointer.dragged){raycaster.setFromCamera(new THREE.Vector2((e.clientX-canvas.offsetLeft)/canvas.clientWidth*2-1,-(e.clientY-canvas.offsetTop)/canvas.clientHeight*2+1),camera);const hit=raycaster.intersectObject(terrain)[0];if(hit){try{walkTo(hit.point.x,hit.point.z);}catch{toast('Let’s keep our feet on the island.');}}}pointer=null;};canvas.onpointercancel=()=>pointer=null;canvas.onwheel=e=>{e.preventDefault();zoom=clamp(zoom+e.deltaY*.015,18,48);resize();};
+let locomotionSpeed=0,travelX=0,travelZ=1;
 let last=performance.now(),lastState=0,fpsSum=0,fpsCount=0;function frame(now){requestAnimationFrame(frame);const dt=Math.min((now-last)/1000,.05);last=now;time+=dt;waterMat.uniforms.time.value=time;boat.position.y=-.01+Math.sin(time*1.2)*.055;boat.rotation.z=Math.sin(time*.8)*.025;pennant.rotation.y=Math.sin(time*2)*.2;flame.scale.set(1+Math.sin(time*12)*.08,1+Math.sin(time*17)*.12,1);flameInner.scale.y=1+Math.sin(time*21)*.08;for(const o of crystals){o.group.rotation.y=time*.75;o.group.position.y=height(o.x,o.z)+.7+Math.sin(time*2+o.x)*.12;}
 if(keys.has('KeyQ'))yaw+=dt*1.5;if(keys.has('KeyR'))yaw-=dt*1.5;let dx=0,dz=0;const kx=(keys.has('KeyD')||keys.has('ArrowRight')?1:0)-(keys.has('KeyA')||keys.has('ArrowLeft')?1:0),kz=(keys.has('KeyS')||keys.has('ArrowDown')?1:0)-(keys.has('KeyW')||keys.has('ArrowUp')?1:0);if(kx||kz){movementTarget=null;waypoints=[];dx=kx*Math.cos(yaw)+kz*Math.sin(yaw);dz=-kx*Math.sin(yaw)+kz*Math.cos(yaw);if(!$('#dialog').hidden)closeDialog();}else if(movementTarget){dx=movementTarget.x-playerState.x;dz=movementTarget.z-playerState.z;if(Math.hypot(dx,dz)<.19){movementTarget=waypoints.shift()||null;dx=dz=0;}}
-let moving=Math.hypot(dx,dz)>.05&&!playerState.sitting;if(moving){const len=Math.hypot(dx,dz);dx/=len;dz/=len;const speed=(keys.has('ShiftLeft')?5.6:3.7)*dt;const nx=playerState.x+dx*speed,nz=playerState.z+dz*speed;let moved=false;if(isWalkable(nx,playerState.z)){playerState.x=nx;moved=true;}if(isWalkable(playerState.x,nz)){playerState.z=nz;moved=true;}if(!moved&&movementTarget){movementTarget=null;waypoints=[];toast('Something is in the way. Try walking around it.');}const turn=THREE.MathUtils.euclideanModulo(Math.atan2(dx,dz)-player.group.rotation.y+Math.PI,Math.PI*2)-Math.PI;player.group.rotation.y+=turn*(1-Math.exp(-dt*14));steps+=dt;}
-playerState.vy-=dt*12;playerState.jump=Math.max(0,playerState.jump+playerState.vy*dt);if(!playerState.jump)playerState.vy=0;playerState.y=height(playerState.x,playerState.z);player.group.position.set(playerState.x,playerState.y+playerState.jump-(playerState.sitting?.25:0),playerState.z);animatePerson(player,moving?1:0,time);if(playerState.sitting){player.left.rotation.x=player.right.rotation.x=-1.2;}for(const n of npcs){n.wait-=dt;let speed=0;if(n.wait<=0){const dest=n.route[n.index],dx=dest[0]-n.group.position.x,dz=dest[1]-n.group.position.z,d=Math.hypot(dx,dz);if(d<.15){n.index=(n.index+1)%n.route.length;n.wait=4+random()*7;}else{n.group.position.x+=dx/d*n.speed*dt;n.group.position.z+=dz/d*n.speed*dt;n.group.position.y=height(n.group.position.x,n.group.position.z);n.group.rotation.y=Math.atan2(dx,dz);speed=.65;}}animatePerson(n,speed,time+n.phase);const o=objects.find(o=>o.id===n.id);o.x=n.group.position.x;o.z=n.group.position.z;}
+const intentLength=Math.hypot(dx,dz),hasIntent=intentLength>.05&&!playerState.sitting;
+let desiredSpeed=hasIntent?(keys.has('ShiftLeft')?4.2:2.6):0;
+if(movementTarget)desiredSpeed=Math.min(desiredSpeed,intentLength*6);
+locomotionSpeed=THREE.MathUtils.lerp(locomotionSpeed,desiredSpeed,1-Math.exp(-dt*(hasIntent?10:16)));
+if(locomotionSpeed<.015)locomotionSpeed=0;
+if(hasIntent){travelX=dx/intentLength;travelZ=dz/intentLength;}
+let moving=locomotionSpeed>0&&!playerState.sitting;
+if(moving){
+ const nx=playerState.x+travelX*locomotionSpeed*dt,nz=playerState.z+travelZ*locomotionSpeed*dt;
+ let moved=false;
+ if(isWalkable(nx,playerState.z)){playerState.x=nx;moved=true;}
+ if(isWalkable(playerState.x,nz)){playerState.z=nz;moved=true;}
+ if(!moved){locomotionSpeed=0;if(movementTarget){movementTarget=null;waypoints=[];toast('Something is in the way. Try walking around it.');}}
+ const turn=THREE.MathUtils.euclideanModulo(Math.atan2(travelX,travelZ)-player.group.rotation.y+Math.PI,Math.PI*2)-Math.PI;
+ player.group.rotation.y+=turn*(1-Math.exp(-dt*14));steps+=dt;
+}
+playerState.vy-=dt*12;playerState.jump=Math.max(0,playerState.jump+playerState.vy*dt);if(!playerState.jump)playerState.vy=0;playerState.y=height(playerState.x,playerState.z);player.group.position.set(playerState.x,playerState.y+playerState.jump-(playerState.sitting?.25:0),playerState.z);animatePerson(player,moving?1:0,time,dt);if(playerState.sitting){player.left.rotation.x=player.right.rotation.x=-1.2;}for(const n of npcs){n.wait-=dt;let speed=0;if(n.wait<=0){const dest=n.route[n.index],dx=dest[0]-n.group.position.x,dz=dest[1]-n.group.position.z,d=Math.hypot(dx,dz);if(d<.15){n.index=(n.index+1)%n.route.length;n.wait=4+random()*7;}else{n.group.position.x+=dx/d*n.speed*dt;n.group.position.z+=dz/d*n.speed*dt;n.group.position.y=height(n.group.position.x,n.group.position.z);n.group.rotation.y=Math.atan2(dx,dz);speed=.65;}}animatePerson(n,speed,time+n.phase,dt);const o=objects.find(o=>o.id===n.id);o.x=n.group.position.x;o.z=n.group.position.z;}
 for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.life-=dt;p.mesh.position.addScaledVector(p.v,dt);p.v.y-=dt*3;p.mesh.scale.setScalar(Math.max(p.life,0));if(p.life<0){scene.remove(p.mesh);p.mesh.geometry.dispose();p.mesh.material.dispose();particles.splice(i,1);}}
 if(follow){targetDest.set(playerState.x,playerState.y+1.2,playerState.z-2.2);cameraTarget.lerp(targetDest,1-Math.exp(-dt*2.5));}snappedTarget.copy(cameraTarget);
 if(pixelHeight&&!clean){
@@ -117,4 +200,5 @@ if(pixelHeight&&!clean){
 }
 camera.position.set(snappedTarget.x+Math.sin(yaw)*27,snappedTarget.y+23,snappedTarget.z+Math.cos(yaw)*27);camera.lookAt(snappedTarget);camera.updateMatrixWorld();nearest=nearestObject();const int=$('#interaction');int.hidden=!nearest||!$('#dialog').hidden;if(nearest){int.querySelector('span').textContent=nearest.type==='skyglass'?'Pick up skyglass':nearest.type==='campfire'?(fire.lit?'Put out campfire':'Light campfire'):nearest.type==='lantern'?'Visit the lantern':nearest.type==='neighbor'?`Talk to ${nearest.name}`:nearest.type==='bench'?'Sit for a moment':`Read ${nearest.name.toLowerCase()}`;}
 $('#landmark').textContent=playerState.y>7?'Lantern Hill':playerState.x<-10&&playerState.z<0?'West lookout':playerState.x<-10?'Wildflower hollow':playerState.x>12?'Fishing rocks':'Cove landing';if(now-lastState>500){$('#stateView').textContent=JSON.stringify(observe(),null,2);lastState=now;}if(clean){renderer.setRenderTarget(null);renderer.render(scene,camera);}else{renderer.setRenderTarget(renderTarget);renderer.render(scene,camera);renderer.setRenderTarget(null);renderer.render(postScene,postCamera);} }
+const closeup=document.createElement('button');closeup.className='wide';closeup.textContent='Character close-up';closeup.onclick=()=>{zoom=zoom<15?28:10;resize();closeup.textContent=zoom<15?'Return to island view':'Character close-up';};$('#lab').insertBefore(closeup,$('#lab').querySelector('details'));
 $('#loading').remove();log('world_ready');requestAnimationFrame(frame);

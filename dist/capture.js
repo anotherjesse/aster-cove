@@ -28,7 +28,7 @@ study.onclick=()=>{
  study.disabled=true;
  setTimeout(()=>{
   document.querySelector('#captureVideo').click();
-  for(const [ms,action] of [[1000,{type:'walk_to',x:-1,z:14}],[3200,{type:'walk_to',x:-4,z:14}],[5400,{type:'walk_to',x:-1,z:14}],[7500,{type:'hop'}],[8800,{type:'walk_to',x:-1,z:17}]])setTimeout(()=>act(action),ms);
+  for(const [ms,action] of [[1000,{type:'walk_to',x:2,z:17}],[3200,{type:'walk_to',x:-2,z:17}],[5400,{type:'walk_to',x:1,z:17}],[7500,{type:'hop'}],[8800,{type:'walk_to',x:-1,z:17}]])setTimeout(()=>act(action),ms);
   setTimeout(()=>{study.disabled=false;},12500);
  },1200);
 };

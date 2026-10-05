@@ -35,3 +35,14 @@ Real 3D meshes share world coordinates, an orthographic camera, depth, occlusion
 ## Preservation
 
 The ZIP includes `.git` and a Git bundle as independent recovery paths. `git fsck --full` verifies repository consistency; `git bundle verify aster-cove.bundle` verifies the bundle. See the companion restoration report for tested hashes and recovery results.
+
+
+## Visual and character study 02
+
+The island geometry, local neighbors and three-piece errand are preserved. Grass and flowers are sparser, water uses broad low-contrast swells, the palette is softer, and the camera and output scaling align with whole render pixels. Stepped color remains optional and is off by default.
+
+The original hiker now has articulated hips, knees, ankles, shoulders and elbows, a readable coat/pack/boot silhouette, distance-driven stride, terrain-aware foot targets, shortest-path turning and eased start/stop motion. Hop poses tuck the legs. Neighbors share the original procedural rig; there are still no external models or game assets.
+
+In Render lab, **Character close-up** inspects the actual player. **Capture a moment** saves a PNG or records 12 seconds of canvas video. **Record movement study** returns to the landing and runs a repeatable start/walk/turn/stop/hop sequence. The downloadable recording contains only the scene canvas, without microphone or camera access. Local review uses a loopback-only evidence server; ordinary static hosting retains browser downloads.
+
+Checks: `node --check dist/main.js`, `node --check dist/capture.js`, and `node tests.mjs`. Rendering and animation were reviewed in the connected Mac browser with actual captured footage; these checks do not establish full-device or multiplayer support.
