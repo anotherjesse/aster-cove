@@ -55,3 +55,8 @@ The accepted character/environment checkpoint is tagged `character-review-approv
 
 ### GitHub Pages
 Play at https://anotherjesse.com/aster-cove/ . Pushes to GitHub's `main` branch run syntax and world checks, then deploy `dist/` with GitHub Actions. All game assets use relative URLs for project-path hosting. The custom domain is inherited from the account's Pages site; this project intentionally has no CNAME file.
+
+### Hat stability
+The hiker's straw hat now uses one continuous surface and broad, fixed vertex colors instead of three overlapping, flat-lit cylinders with a narrow dark band. It still casts a scene shadow. This follows the general rendering principle in Adam Robinson-Yu's [GDC 2020 talk, 6:25–7:11](https://www.youtube.com/watch?v=ZW8gWgpptI8&t=385s): flat, consistent palette regions help reduce noise under low-resolution rendering. The talk's auto-generated transcript was reviewed; this is our own asset implementation, not a reproduction of that game's shader.
+
+Matched 12-second left/right/diagonal captures at the ordinary playing zoom were inspected at 320p and 200p presets. The old hat pattern persisted with sun shadows disabled and with outlines disabled individually; neither alone explained it. Reducing subpixel surface/color detail removed the conspicuous internal dark pattern in the inspected motion. Normal silhouette stepping remains at coarse resolution. A 540p close-up confirmed the hat construction. Camera, locomotion, and the rest of the world code were verified byte-identical to the prior release. Syntax/world checks passed, and browser warnings/errors were empty. Full quest and mobile coverage were not repeated for this asset-only change.

@@ -62,7 +62,17 @@ function person(name,x,z,shirt,hat=false){
  const hair=ball(.241,'#594a40',head,0,.085,-.055,1);hair.scale.set(.94,.62,.86);
  box(.07,.065,.035,'#293e3d',head,-.088,.025,.194);box(.07,.065,.035,'#293e3d',head,.088,.025,.194);
  box(.09,.07,.075,'#cf9a72',head,0,-.025,.2);
- if(hat){cylinder(.34,.34,.065,'#f1ddb2',head,0,.22,.015,10);cylinder(.23,.26,.19,'#e4cda1',head,0,.335,0,10);cylinder(.263,.263,.055,'#8a6950',head,0,.26,0,10);}
+ if(hat){
+ // One continuous surface: no nested caps or near-touching band cylinders.
+ // Broad authored colors keep this tiny focal asset readable as it crosses pixels.
+ const profile=[[0,.1875],[.34,.1875],[.34,.2525],[.26,.2525],[.253,.30],[.23,.43],[0,.43]];
+ const hatGeo=new THREE.LatheGeometry(profile.map(([r,y])=>new THREE.Vector2(r,y)),24).toNonIndexed();
+ const hatColors=['#b69a6b','#cbb17e','#ead8ad','#bea477','#dcc69b','#edddb9'];
+ const hatVertexColors=[];
+ for(let i=0;i<24;i++)for(let j=0;j<profile.length-1;j++){const color=new THREE.Color(hatColors[j]);for(let v=0;v<6;v++)hatVertexColors.push(color.r,color.g,color.b);}
+ hatGeo.setAttribute('color',new THREE.Float32BufferAttribute(hatVertexColors,3));
+ const hatMesh=new THREE.Mesh(hatGeo,new THREE.MeshBasicMaterial({vertexColors:true}));hatMesh.castShadow=true;hatMesh.receiveShadow=false;head.add(hatMesh);
+}
  const pack=box(.43,.48,.21,'#ba915c',visual,0,1.0,-.235);
  box(.36,.13,.24,'#d4ad70',visual,0,1.22,-.25);
  for(const side of [-1,1])box(.055,.49,.035,'#e2bb83',visual,side*.18,1.02,.211);
