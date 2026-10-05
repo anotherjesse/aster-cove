@@ -46,3 +46,9 @@ The original hiker now has articulated hips, knees, ankles, shoulders and elbows
 In Render lab, **Character close-up** inspects the actual player. **Capture a moment** saves a PNG or records 12 seconds of canvas video. **Record movement study** returns to the landing and runs a repeatable start/walk/turn/stop/hop sequence. The downloadable recording contains only the scene canvas, without microphone or camera access. Local review uses a loopback-only evidence server; ordinary static hosting retains browser downloads.
 
 Checks: `node --check dist/main.js`, `node --check dist/capture.js`, and `node tests.mjs`. Rendering and animation were reviewed in the connected Mac browser with actual captured footage; these checks do not establish full-device or multiplayer support.
+
+
+### Camera presentation refinement
+The scene camera stays aligned to the low-resolution world grid, preserving static grass and terrain silhouettes during translation. A two-texel overscan border and a residual offset in the final nearest-filtered pass present the camera at screen-pixel precision instead of whole virtual-pixel jumps. Picking uses the smooth, uncropped camera; clean 3D also uses that camera.
+
+The accepted character/environment checkpoint is tagged `character-review-approved` (1963baf). On the connected Mac, matching 12-second recordings at 1101×897 confirmed finer translation while retaining static landscape shapes. A measured steady-walk interval changed from 18 stationary frames out of 45 to one; horizontal steps changed from only 0/3 screen pixels to mostly 1/2 pixels. This is a capture-specific result, not a cross-device performance benchmark. Rotation, zoom, animated geometry, and native mode still re-rasterize; the correction specifically targets camera translation.
