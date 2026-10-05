@@ -1,0 +1,1 @@
+{"name":"aster-cove","version":"1.0.0","private":true,"type":"module","description":"Original pixel-rendered Three.js island","scripts":{"start":"python3 -m http.server 4173 --directory dist","check":"node --check dist/main.js"},"dependencies":{},"vendor":{"three":"0.180.0"}}
